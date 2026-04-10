@@ -1,1 +1,884 @@
-<!doctype html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Speed Typing Test</title> <script src="https://cdn.tailwindcss.com/3.4.17"></script> <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"> <style> * { font-family: 'JetBrains Mono', monospace; margin: 0; padding: 0; box-sizing: border-box; } html, body { width: 100%; height: 100%; overflow-x: hidden; } body.dark-mode { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; } body.light-mode { background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); color: #0f172a; } /* Sticky Header */ #header-bar { position: sticky; top: 0; z-index: 100; width: 100%; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); } body.dark-mode #header-bar { background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border-bottom: 1px solid rgba(71, 85, 105, 0.3); } body.light-mode #header-bar { background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.98)); border-bottom: 1px solid rgba(203, 213, 225, 0.5); backdrop-filter: blur(10px); } #app { width: 100%; min-height: 100vh; padding: 20px; padding-top: 10px; } .char { transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline; white-space: pre-wrap; } .char.correct { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); } .char.incorrect { color: #ef4444; background: rgba(239, 68, 68, 0.2); text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); } .char.current { background: rgba(99, 102, 241, 0.4); border-radius: 3px; animation: cursor-blink 1s infinite; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); } .char.upcoming { opacity: 0.6; } body.light-mode .char.upcoming { color: #334155 !important; } body.dark-mode .char.upcoming { color: #94a3b8; } @keyframes cursor-blink { 0%, 49%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.6), inset 0 0 8px rgba(99, 102, 241, 0.3); } 50%, 99% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); } } @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } } @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } .fade-in { animation: slideUp 0.5s ease forwards; } #paragraph-display { display: block; width: 100%; line-height: 2.2; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; font-size: 20px; font-weight: 500; letter-spacing: 0.3px; } body.light-mode #paragraph-display { color: #0f172a !important; font-weight: 600; } body.dark-mode #paragraph-display { color: #cbd5e1; } .typing-area { outline: none; transition: all 0.3s ease; width: 100%; font-size: 16px; } .typing-area:focus { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); border-color: #6366f1 !important; } .timer-pulse { animation: pulse 1s infinite; } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } } @keyframes ratingPulse { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } } .rating-star { animation: ratingPulse 0.6s ease forwards; } .lang-btn { transition: all 0.3s ease; border: none; cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; color: white; } .lang-btn.active { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); } .theme-toggle { transition: all 0.3s ease; border: none; cursor: pointer; background: none; font-size: 20px; padding: 8px 12px; border-radius: 8px; } body.light-mode .theme-toggle { color: #0f172a; } body.dark-mode .theme-toggle { color: white; } body.light-mode #test-container { background: linear-gradient(135deg, rgba(226, 232, 240, 0.6), rgba(241, 245, 249, 0.6)) !important; border-color: rgba(100, 116, 139, 0.3) !important; } body.dark-mode #test-container { background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5)) !important; border-color: rgba(71, 85, 105, 0.5) !important; } body.light-mode #typing-input { background-color: rgba(241, 245, 249, 0.95) !important; color: #0f172a !important; border-color: #cbd5e1 !important; } body.light-mode #typing-input::placeholder { color: #64748b !important; } body.dark-mode #typing-input { background-color: rgba(15, 23, 42, 0.8) !important; color: white !important; border-color: #475569 !important; } body.light-mode #start-message { color: #475569 !important; } body.dark-mode #start-message { color: #94a3b8; } body.light-mode #main-title { color: #0f172a !important; } body.light-mode #subtitle { color: #475569 !important; } /* Mobile Styles */ @media (max-width: 768px) { #app { padding: 15px; padding-top: 5px; } #header-bar { padding: 10px 15px; } #main-title { font-size: 28px !important; } #subtitle { font-size: 12px !important; } #paragraph-display { font-size: 18px; line-height: 2.4; } .text-5xl { font-size: 36px !important; } .text-4xl { font-size: 28px !important; } .text-3xl { font-size: 24px !important; } .text-2xl { font-size: 20px !important; } .text-lg { font-size: 16px !important; } .text-sm { font-size: 12px !important; } .text-xs { font-size: 10px !important; } .px-6 { padding-left: 12px !important; padding-right: 12px !important; } .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; } } @media (max-width: 480px) { #app { padding: 10px; padding-top: 5px; } #header-bar { padding: 8px 10px; gap: 6px; } .lang-btn { padding: 6px 12px !important; font-size: 12px !important; } .theme-toggle { padding: 6px 10px !important; font-size: 18px !important; } #main-title { font-size: 24px !important; } #subtitle { font-size: 11px !important; } #paragraph-display { font-size: 16px; line-height: 2.6; } .text-5xl { font-size: 32px !important; } .text-4xl { font-size: 24px !important; } .text-3xl { font-size: 20px !important; } .gap-4 { gap: 8px !important; } .gap-2 { gap: 6px !important; } .p-8 { padding: 16px !important; } .px-4 { padding-left: 8px !important; padding-right: 8px !important; } .py-3 { padding-top: 8px !important; padding-bottom: 8px !important; } } </style> <style>body { box-sizing: border-box; }</style> <script src="/_sdk/data_sdk.js" type="text/javascript"></script> <script src="/_sdk/element_sdk.js" type="text/javascript"></script> </head> <body class="dark-mode"><!-- Sticky Header --> <div id="header-bar"><button id="theme-toggle" class="theme-toggle" title="Toggle theme">🌙</button> <button id="lang-en" class="lang-btn active" style="background-color: #4f46e5;">EN</button> <button id="lang-fa" class="lang-btn" style="background-color: #475569;">FA</button> </div> <div id="app"><!-- Header --> <div style="text-align: center; margin-bottom: 30px; margin-top: 50px; animation: slideUp 0.5s ease forwards;"> <h1 id="main-title" style="font-size: 36px; font-weight: bold; background: linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">⌨️ Speed Typing Test</h1> <p id="subtitle" style="font-size: 14px;">Test your typing speed and accuracy in real-time</p> </div><!-- Timer & Stats --> <div style="display: flex; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: slideUp 0.5s ease forwards; animation-delay: 0.1s;"> <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(49, 46, 129, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.3); min-width: 120px;"> <div id="timer" style="font-size: 48px; font-weight: bold; color: #818cf8;"> 180 </div> <div id="timer-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;"> Seconds </div> </div> <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 107, 58, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3); min-width: 120px;"> <div id="wpm-live" style="font-size: 48px; font-weight: bold; color: #10b981;"> 0 </div> <div id="wpm-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;"> WPM </div> </div> <div style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(120, 53, 15, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3); min-width: 120px;"> <div id="accuracy-live" style="font-size: 48px; font-weight: bold; color: #f59e0b;"> 100% </div> <div id="accuracy-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;"> Accuracy </div> </div> </div><!-- Paragraph Display --> <div id="test-container" style="width: 100%; max-width: 900px; margin: 0 auto 20px; border-radius: 20px; padding: 24px; border: 1px solid rgba(71, 85, 105, 0.5); box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3); animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); animation-delay: 0.2s;"> <div id="paragraph-display" style="display: block; width: 100%; line-height: 2.2; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; font-size: 20px;"></div><input type="text" id="typing-input" style="width: 100%; border-radius: 10px; padding: 12px 16px; font-size: 16px; border: 2px solid; margin-top: 20px; font-family: 'JetBrains Mono', monospace;" placeholder="Click here and start typing..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"> </div><!-- Start Message --> <div id="start-message" style="text-align: center; font-size: 14px; margin-top: 20px; animation: slideUp 0.5s ease forwards; animation-delay: 0.3s;"> 💡 <span id="start-msg">Click the input field and start typing to begin</span> </div><!-- Results Panel --> <div id="results-panel" style="display: none; width: 100%; max-width: 900px; margin: 30px auto; border-radius: 20px; padding: 24px; border: 1px solid rgba(71, 85, 105, 0.5); box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);"> <h2 id="results-title" style="font-size: 28px; font-weight: bold; text-align: center; margin-bottom: 30px; background: linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📊 Test Results</h2><!-- Performance Rating --> <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.1)); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.3);"> <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;" id="rating-label"> Performance Rating </div> <div id="rating-stars" style="font-size: 48px; letter-spacing: 8px; margin-bottom: 12px; display: flex; justify-content: center; gap: 4px;"></div> <div id="rating-message" style="font-size: 18px; font-weight: bold; color: #22d3ee;"></div> <div id="rating-description" style="font-size: 13px; color: #cbd5e1; margin-top: 8px;"></div> </div> <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;"> <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 107, 58, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3);"> <div id="final-wpm" style="font-size: 36px; font-weight: bold; color: #10b981;"> 0 </div> <div id="final-wpm-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;"> Words Per Minute </div> </div> <div style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(120, 53, 15, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3);"> <div id="final-accuracy" style="font-size: 36px; font-weight: bold; color: #f59e0b;"> 0% </div> <div id="final-accuracy-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;"> Accuracy </div> </div> <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(49, 46, 129, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.3);"> <div id="final-chars" style="font-size: 36px; font-weight: bold; color: #818cf8;"> 0 </div> <div id="final-chars-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;"> Correct Chars </div> </div> </div><!-- Mistakes Section --> <div style="margin-bottom: 20px;"> <h3 id="mistakes-title" style="font-size: 18px; font-weight: bold; color: #f87171; margin-bottom: 12px;">❌ Your Mistakes</h3> <div id="mistakes-list" style="background: rgba(71, 85, 105, 0.2); border-radius: 10px; padding: 16px; font-size: 13px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(71, 85, 105, 0.3);"></div> </div><!-- Suggestions --> <div style="margin-bottom: 20px;"> <h3 id="suggestions-title" style="font-size: 18px; font-weight: bold; color: #22d3ee; margin-bottom: 12px;">💡 Practice Tips</h3> <div id="suggestions-list" style="background: rgba(71, 85, 105, 0.2); border-radius: 10px; padding: 16px; font-size: 13px; border: 1px solid rgba(71, 85, 105, 0.3);"></div> </div><button id="restart-btn" style="width: 100%; background: linear-gradient(to right, #4f46e5, #6366f1); padding: 16px; border-radius: 12px; color: white; font-weight: bold; border: none; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">🔄 Try Again</button> </div> </div> <script> const paragraphsEN = [ "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet and is perfect for typing practice sessions.", "Programming is the art of telling a computer what to do through a series of instructions. Good code is like a good story that anyone can understand.", "Success is not final, failure is not fatal. It is the courage to continue that counts. Keep practicing every single day.", "Technology is best when it brings people together. The internet has made the world smaller and more connected than ever before.", "Learning to type fast and accurately is an essential skill in today's digital world. Practice makes perfect with dedication.", "The journey of a thousand miles begins with a single step. Every expert was once a beginner who never gave up on their dreams.", "Innovation distinguishes between a leader and a follower. Think different and create something amazing today for tomorrow.", "Typing speed matters but accuracy is what truly counts. Focus on precision first and speed will naturally follow afterwards.", "Web development has become an essential skill in the modern world. Creating responsive designs that work on all devices requires careful planning and attention to detail.", "Artificial intelligence is transforming the way we work and live. Machine learning algorithms can now recognize patterns that would take humans years to discover.", "Reading books is a great way to expand your knowledge and imagination. Every book is like a portal to a different world full of new experiences.", "Exercise and healthy eating are the foundations of a good lifestyle. Your body is a temple that deserves care and attention every single day.", "Music has the power to heal the soul and bring joy to our hearts. Different genres can evoke different emotions and memories from our past.", "Travel broadens the mind and opens your eyes to different cultures. Visiting new places teaches us respect and understanding for people unlike ourselves." ]; const paragraphsFA = [ "سرعت و دقت در تایپ مهارتی ضروری است که همه افراد باید آن را یاد بگیرند تا بتوانند در دنیای دیجیتال موفق شوند.", "برنامه نویسی هنری است که افراد با آن می توانند کامپیوتر را کنترل کنند و دستورات مختلفی را اجرا کنند.", "موفقیت یک مسیر پیوسته است و شکست نیست. اهم چیز این است که هرگز تلاش کردن را متوقف نکنید.", "فناوری بهترین نتایج را زمانی دارد که افراد از آن برای ارتباط با یکدیگر استفاده کنند.", "یادگیری صحیح و تمرین منظم می تواند هر کسی را به متخصص تبدیل کند.", "هر متخصصی روزی یک مبتدی بود که هرگز تلاش کردن را متوقف نکرد.", "نوآوری و خلاقیت افراد را از یکدیگر متمایز می کند در این دنیای پر از رقابت.", "تایپ کردن یک مهارت است که با تمرین مداوم بهتر می شود و سرعت خودکار افزایش می یابد.", "توسعه وب یک مهارت ضروری در جهان امروز است. ایجاد طراحی‌هایی که روی تمام دستگاه‌ها کار کنند نیازمند برنامه‌ریزی دقیق است.", "هوش مصنوعی روش کار ما را تغییر می‌دهد. الگوریتم‌های یادگیری ماشینی می‌توانند الگوهایی را کشف کنند که سال‌ها طول می‌کشد.", "خواندن کتاب راه خوبی برای گسترش دانش و خیال‌پردازی است. هر کتاب مثل دروازه‌ای به دنیایی جدید و پر از تجربه است.", "ورزش و خوردن سالم بنیاد یک زندگی خوب است. بدن شما معبدی است که شایسته مراقبت و توجه روزانه است.", "موسیقی قدرت شفای روح را دارد و شادی به قلب ما می‌بخشد. ژانرهای مختلف احساسات و خاطرات متفاوتی را برمی‌انگیزند.", "سفر افق‌های ذهن را گسترش می‌دهد و چشم‌هایمان را به فرهنگ‌های متفاوت باز می‌کند.", "صبح‌های زود بیدار شدن شما را برای روزی پر انرژی آماده می‌کند. طبیعت و آب‌وهوای صبح روح را تجدید می‌کند." ]; const translations = { en: { title: "⌨️ Speed Typing Test", subtitle: "Test your typing speed and accuracy in real-time", seconds: "Seconds", wpm: "WPM", accuracy: "Accuracy", placeholder: "Click here and start typing...", startMsg: "Click the input field and start typing to begin", resultsTitle: "📊 Test Results", wpmLabel: "Words Per Minute", accuracyLabel: "Accuracy", charsLabel: "Correct Chars", mistakesTitle: "❌ Your Mistakes", suggestionsTitle: "💡 Practice Tips", restartBtn: "🔄 Try Again", noMistakes: "🎉 Perfect! No mistakes!", topMistakes: "Top character mistakes:", practice: "💪 Tip: Practice these characters more carefully.", perfect: "👏 All characters typed correctly!", ratingLabel: "Performance Rating" }, fa: { title: "⌨️ تست سرعت تایپ", subtitle: "سرعت و دقت تایپ خود را در زمان واقعی بسنجید", seconds: "ثانیه", wpm: "WPM", accuracy: "دقت", placeholder: "اینجا کلیک کنید و شروع به تایپ کنید...", startMsg: "روی فیلد ورودی کلیک کنید و برای شروع شروع به تایپ کنید", resultsTitle: "📊 نتایج تست", wpmLabel: "کلمه در دقیقه", accuracyLabel: "دقت", charsLabel: "کاراکتر صحیح", mistakesTitle: "❌ خطاهای شما", suggestionsTitle: "💡 نکات تمرین", restartBtn: "🔄 دوباره تلاش کنید", noMistakes: "🎉 عالی! بدون خطا!", topMistakes: "بیشترین خطا در این کاراکترها:", practice: "💪 نکته: این کاراکترها را با دقت بیشتر تمرین کنید.", perfect: "👏 تمام کاراکترها درست تایپ شدند!", ratingLabel: "امتیاز عملکرد" } }; const ratingMessages = { en: [ "Needs Practice - Don't give up!", "Fair - Keep improving!", "Good! Keep practicing!", "Very Good! Great typing skills!", "Excellent! Outstanding performance!" ], fa: [ "نیازمند تمرین - تلاش رو ترک نکنید!", "متوسط - بهتر شوید!", "خوب! ادامه تمرین دهید!", "خیلی خوب! مهارت تایپ عالی!", "عالی! عملکرد فوق‌العاده!" ] }; let language = "en"; let theme = "dark"; let currentParagraph = ""; let typedChars = []; let mistakes = []; let mistakeChars = {}; let timerInterval = null; let timeLeft = 180; let hasStarted = false; let totalTyped = 0; let correctTyped = 0; let startTime = null; function getTranslation(key) { return translations[language][key] || translations.en[key]; } function toggleTheme() { theme = theme === "dark" ? "light" : "dark"; document.body.classList.remove("dark-mode", "light-mode"); document.body.classList.add(theme + "-mode"); const themeToggle = document.getElementById('theme-toggle'); themeToggle.textContent = theme === "dark" ? "🌙" : "☀️"; localStorage.setItem("theme", theme); } function setLanguage(lang) { language = lang; document.documentElement.lang = lang; document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr'; const enBtn = document.getElementById('lang-en'); const faBtn = document.getElementById('lang-fa'); if (lang === 'en') { enBtn.style.backgroundColor = '#4f46e5'; enBtn.style.boxShadow = '0 0
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Speed Typing Test</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'JetBrains Mono', monospace;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    body.dark-mode {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+    }
+    
+    body.light-mode {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+      color: #0f172a;
+    }
+    
+    /* Sticky Header */
+    #header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark-mode #header-bar {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    body.light-mode #header-bar {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.98));
+      border-bottom: 1px solid rgba(203, 213, 225, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    
+    #app {
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      padding-top: 10px;
+    }
+    
+    .char {
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline;
+      white-space: pre-wrap;
+    }
+    
+    .char.correct {
+      color: #10b981;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    
+    .char.incorrect {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    
+    .char.current {
+      background: rgba(99, 102, 241, 0.4);
+      border-radius: 3px;
+      animation: cursor-blink 1s infinite;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+    }
+    
+    .char.upcoming {
+      opacity: 0.6;
+    }
+    
+    body.light-mode .char.upcoming {
+      color: #334155 !important;
+    }
+    
+    body.dark-mode .char.upcoming {
+      color: #94a3b8;
+    }
+    
+    @keyframes cursor-blink {
+      0%, 49%, 100% {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.6), inset 0 0 8px rgba(99, 102, 241, 0.3);
+      }
+      50%, 99% {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+      }
+    }
+    
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: slideUp 0.5s ease forwards;
+    }
+    
+    #paragraph-display {
+      display: block;
+      width: 100%;
+      line-height: 2.2;
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    
+    body.light-mode #paragraph-display {
+      color: #000000 !important;
+      font-weight: 700;
+      text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode #paragraph-display {
+      color: #e2e8f0;
+    }
+    
+    .typing-area {
+      outline: none;
+      transition: all 0.3s ease;
+      width: 100%;
+      font-size: 16px;
+    }
+    
+    .typing-area:focus {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+      border-color: #6366f1 !important;
+    }
+    
+    .timer-pulse {
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    
+    @keyframes ratingPulse {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .rating-star {
+      animation: ratingPulse 0.6s ease forwards;
+    }
+    
+    .lang-btn {
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      color: white;
+    }
+    
+    .lang-btn.active {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+    }
+    
+    .theme-toggle {
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      background: none;
+      font-size: 20px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    
+    body.light-mode .theme-toggle {
+      color: #0f172a;
+    }
+    
+    body.dark-mode .theme-toggle {
+      color: white;
+    }
+    
+    body.light-mode #test-container {
+      background: linear-gradient(135deg, rgba(226, 232, 240, 0.6), rgba(241, 245, 249, 0.6)) !important;
+      border-color: rgba(100, 116, 139, 0.3) !important;
+    }
+    
+    body.dark-mode #test-container {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5)) !important;
+      border-color: rgba(71, 85, 105, 0.5) !important;
+    }
+    
+    body.light-mode #typing-input {
+      background-color: rgba(241, 245, 249, 0.95) !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    
+    body.light-mode #typing-input::placeholder {
+      color: #64748b !important;
+    }
+    
+    body.dark-mode #typing-input {
+      background-color: rgba(15, 23, 42, 0.8) !important;
+      color: white !important;
+      border-color: #475569 !important;
+    }
+    
+    body.light-mode #start-message {
+      color: #475569 !important;
+    }
+    
+    body.dark-mode #start-message {
+      color: #94a3b8;
+    }
+    
+    body.light-mode #main-title {
+      color: #0f172a !important;
+    }
+    
+    body.light-mode #subtitle {
+      color: #475569 !important;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      #app {
+        padding: 15px;
+        padding-top: 5px;
+      }
+      
+      #header-bar {
+        padding: 10px 15px;
+      }
+      
+      #main-title {
+        font-size: 28px !important;
+      }
+      
+      #subtitle {
+        font-size: 12px !important;
+      }
+      
+      #paragraph-display {
+        font-size: 18px;
+        line-height: 2.4;
+      }
+      
+      .text-5xl {
+        font-size: 36px !important;
+      }
+      
+      .text-4xl {
+        font-size: 28px !important;
+      }
+      
+      .text-3xl {
+        font-size: 24px !important;
+      }
+      
+      .text-2xl {
+        font-size: 20px !important;
+      }
+      
+      .text-lg {
+        font-size: 16px !important;
+      }
+      
+      .text-sm {
+        font-size: 12px !important;
+      }
+      
+      .text-xs {
+        font-size: 10px !important;
+      }
+      
+      .px-6 {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+      }
+      
+      .py-4 {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #app {
+        padding: 10px;
+        padding-top: 5px;
+      }
+      
+      #header-bar {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+      
+      .lang-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+      }
+      
+      .theme-toggle {
+        padding: 6px 10px !important;
+        font-size: 18px !important;
+      }
+      
+      #main-title {
+        font-size: 24px !important;
+      }
+      
+      #subtitle {
+        font-size: 11px !important;
+      }
+      
+      #paragraph-display {
+        font-size: 16px;
+        line-height: 2.6;
+      }
+      
+      .text-5xl {
+        font-size: 32px !important;
+      }
+      
+      .text-4xl {
+        font-size: 24px !important;
+      }
+      
+      .text-3xl {
+        font-size: 20px !important;
+      }
+      
+      .gap-4 {
+        gap: 8px !important;
+      }
+      
+      .gap-2 {
+        gap: 6px !important;
+      }
+      
+      .p-8 {
+        padding: 16px !important;
+      }
+      
+      .px-4 {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+      
+      .py-3 {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+      }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="dark-mode"><!-- Sticky Header -->
+  <div id="header-bar"><button id="theme-toggle" class="theme-toggle" title="Toggle theme">🌙</button> <button id="lang-en" class="lang-btn active" style="background-color: #4f46e5;">EN</button> <button id="lang-fa" class="lang-btn" style="background-color: #475569;">FA</button>
+  </div>
+  <div id="app"><!-- Header -->
+   <div style="text-align: center; margin-bottom: 30px; margin-top: 50px; animation: slideUp 0.5s ease forwards;">
+    <h1 id="main-title" style="font-size: 36px; font-weight: bold; background: linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">⌨️ Speed Typing Test</h1>
+    <p id="subtitle" style="font-size: 14px;">Test your typing speed and accuracy in real-time</p>
+   </div><!-- Timer & Stats -->
+   <div style="display: flex; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: slideUp 0.5s ease forwards; animation-delay: 0.1s;">
+    <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(49, 46, 129, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.3); min-width: 120px;">
+     <div id="timer" style="font-size: 48px; font-weight: bold; color: #818cf8;">
+      120
+     </div>
+     <div id="timer-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;">
+      Seconds
+     </div>
+    </div>
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 107, 58, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3); min-width: 120px;">
+     <div id="wpm-live" style="font-size: 48px; font-weight: bold; color: #10b981;">
+      0
+     </div>
+     <div id="wpm-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;">
+      WPM
+     </div>
+    </div>
+    <div style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(120, 53, 15, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3); min-width: 120px;">
+     <div id="accuracy-live" style="font-size: 48px; font-weight: bold; color: #f59e0b;">
+      100%
+     </div>
+     <div id="accuracy-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px; text-transform: uppercase;">
+      Accuracy
+     </div>
+    </div>
+   </div><!-- Paragraph Display -->
+   <div id="test-container" style="width: 100%; max-width: 900px; margin: 0 auto 20px; border-radius: 20px; padding: 24px; border: 1px solid rgba(71, 85, 105, 0.5); box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3); animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); animation-delay: 0.2s;">
+    <div id="paragraph-display" style="display: block; width: 100%; line-height: 2.2; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; font-size: 20px;"></div><input type="text" id="typing-input" style="width: 100%; border-radius: 10px; padding: 12px 16px; font-size: 16px; border: 2px solid; margin-top: 20px; font-family: 'JetBrains Mono', monospace;" placeholder="Click here and start typing..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+   </div><!-- Start Message -->
+   <div id="start-message" style="text-align: center; font-size: 14px; margin-top: 20px; animation: slideUp 0.5s ease forwards; animation-delay: 0.3s;">
+    💡 <span id="start-msg">Click the input field and start typing to begin</span>
+   </div><!-- Results Panel -->
+   <div id="results-panel" style="display: none; width: 100%; max-width: 900px; margin: 30px auto; border-radius: 20px; padding: 24px; border: 1px solid rgba(71, 85, 105, 0.5); box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);">
+    <h2 id="results-title" style="font-size: 28px; font-weight: bold; text-align: center; margin-bottom: 30px; background: linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📊 Test Results</h2><!-- Performance Rating -->
+    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.1)); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.3);">
+     <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;" id="rating-label">
+      Performance Rating
+     </div>
+     <div id="rating-stars" style="font-size: 48px; letter-spacing: 8px; margin-bottom: 12px; display: flex; justify-content: center; gap: 4px;"></div>
+     <div id="rating-message" style="font-size: 18px; font-weight: bold; color: #22d3ee;"></div>
+     <div id="rating-description" style="font-size: 13px; color: #cbd5e1; margin-top: 8px;"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+     <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 107, 58, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3);">
+      <div id="final-wpm" style="font-size: 36px; font-weight: bold; color: #10b981;">
+       0
+      </div>
+      <div id="final-wpm-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;">
+       Words Per Minute
+      </div>
+     </div>
+     <div style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(120, 53, 15, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3);">
+      <div id="final-accuracy" style="font-size: 36px; font-weight: bold; color: #f59e0b;">
+       0%
+      </div>
+      <div id="final-accuracy-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;">
+       Accuracy
+      </div>
+     </div>
+     <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(49, 46, 129, 0.1)); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.3);">
+      <div id="final-chars" style="font-size: 36px; font-weight: bold; color: #818cf8;">
+       0
+      </div>
+      <div id="final-chars-label" style="font-size: 12px; color: #94a3b8; margin-top: 8px;">
+       Correct Chars
+      </div>
+     </div>
+    </div><!-- Mistakes Section -->
+    <div style="margin-bottom: 20px;">
+     <h3 id="mistakes-title" style="font-size: 18px; font-weight: bold; color: #f87171; margin-bottom: 12px;">❌ Your Mistakes</h3>
+     <div id="mistakes-list" style="background: rgba(71, 85, 105, 0.2); border-radius: 10px; padding: 16px; font-size: 13px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(71, 85, 105, 0.3);"></div>
+    </div><!-- Suggestions -->
+    <div style="margin-bottom: 20px;">
+     <h3 id="suggestions-title" style="font-size: 18px; font-weight: bold; color: #22d3ee; margin-bottom: 12px;">💡 Practice Tips</h3>
+     <div id="suggestions-list" style="background: rgba(71, 85, 105, 0.2); border-radius: 10px; padding: 16px; font-size: 13px; border: 1px solid rgba(71, 85, 105, 0.3);"></div>
+    </div><button id="restart-btn" style="width: 100%; background: linear-gradient(to right, #4f46e5, #6366f1); padding: 16px; border-radius: 12px; color: white; font-weight: bold; border: none; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">🔄 Try Again</button>
+   </div>
+  </div>
+  <script>
+    const paragraphsEN = [
+      "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet and is perfect for typing practice sessions.",
+      "Programming is the art of telling a computer what to do through a series of instructions. Good code is like a good story that anyone can understand.",
+      "Success is not final, failure is not fatal. It is the courage to continue that counts. Keep practicing every single day.",
+      "Technology is best when it brings people together. The internet has made the world smaller and more connected than ever before.",
+      "Learning to type fast and accurately is an essential skill in today's digital world. Practice makes perfect with dedication.",
+      "The journey of a thousand miles begins with a single step. Every expert was once a beginner who never gave up on their dreams.",
+      "Innovation distinguishes between a leader and a follower. Think different and create something amazing today for tomorrow.",
+      "Typing speed matters but accuracy is what truly counts. Focus on precision first and speed will naturally follow afterwards.",
+      "Web development has become an essential skill in the modern world. Creating responsive designs that work on all devices requires careful planning and attention to detail.",
+      "Artificial intelligence is transforming the way we work and live. Machine learning algorithms can now recognize patterns that would take humans years to discover.",
+      "Reading books is a great way to expand your knowledge and imagination. Every book is like a portal to a different world full of new experiences.",
+      "Exercise and healthy eating are the foundations of a good lifestyle. Your body is a temple that deserves care and attention every single day.",
+      "Music has the power to heal the soul and bring joy to our hearts. Different genres can evoke different emotions and memories from our past.",
+      "Travel broadens the mind and opens your eyes to different cultures. Visiting new places teaches us respect and understanding for people unlike ourselves."
+    ];
+
+    const paragraphsFA = [
+      "سرعت و دقت در تایپ مهارتی ضروری است که همه افراد باید آن را یاد بگیرند تا بتوانند در دنیای دیجیتال موفق شوند.",
+      "برنامه نویسی هنری است که افراد با آن می توانند کامپیوتر را کنترل کنند و دستورات مختلفی را اجرا کنند.",
+      "موفقیت یک مسیر پیوسته است و شکست نیست. اهم چیز این است که هرگز تلاش کردن را متوقف نکنید.",
+      "فناوری بهترین نتایج را زمانی دارد که افراد از آن برای ارتباط با یکدیگر استفاده کنند.",
+      "یادگیری صحیح و تمرین منظم می تواند هر کسی را به متخصص تبدیل کند.",
+      "هر متخصصی روزی یک مبتدی بود که هرگز تلاش کردن را متوقف نکرد.",
+      "نوآوری و خلاقیت افراد را از یکدیگر متمایز می کند در این دنیای پر از رقابت.",
+      "تایپ کردن یک مهارت است که با تمرین مداوم بهتر می شود و سرعت خودکار افزایش می یابد.",
+      "توسعه وب یک مهارت ضروری در جهان امروز است. ایجاد طراحی‌هایی که روی تمام دستگاه‌ها کار کنند نیازمند برنامه‌ریزی دقیق است.",
+      "هوش مصنوعی روش کار ما را تغییر می‌دهد. الگوریتم‌های یادگیری ماشینی می‌توانند الگوهایی را کشف کنند که سال‌ها طول می‌کشد.",
+      "خواندن کتاب راه خوبی برای گسترش دانش و خیال‌پردازی است. هر کتاب مثل دروازه‌ای به دنیایی جدید و پر از تجربه است.",
+      "ورزش و خوردن سالم بنیاد یک زندگی خوب است. بدن شما معبدی است که شایسته مراقبت و توجه روزانه است.",
+      "موسیقی قدرت شفای روح را دارد و شادی به قلب ما می‌بخشد. ژانرهای مختلف احساسات و خاطرات متفاوتی را برمی‌انگیزند.",
+      "سفر افق‌های ذهن را گسترش می‌دهد و چشم‌هایمان را به فرهنگ‌های متفاوت باز می‌کند.",
+      "صبح‌های زود بیدار شدن شما را برای روزی پر انرژی آماده می‌کند. طبیعت و آب‌وهوای صبح روح را تجدید می‌کند."
+    ];
+
+    const translations = {
+      en: {
+        title: "⌨️ Speed Typing Test",
+        subtitle: "Test your typing speed and accuracy in real-time",
+        seconds: "Seconds",
+        wpm: "WPM",
+accuracy: "Accuracy",
+        placeholder: "Click here and start typing...",
+        startMsg: "Click the input field and start typing to begin",
+        resultsTitle: "📊 Test Results",
+        wpmLabel: "Words Per Minute",
+        accuracyLabel: "Accuracy",
+        charsLabel: "Correct Chars",
+        mistakesTitle: "❌ Your Mistakes",
+        suggestionsTitle: "💡 Practice Tips",
+        restartBtn: "🔄 Try Again",
+        noMistakes: "🎉 Perfect! No mistakes!",
+        topMistakes: "Top character mistakes:",
+        practice: "💪 Tip: Practice these characters more carefully.",
+        perfect: "👏 All characters typed correctly!",
+        ratingLabel: "Performance Rating"
+      },
+      fa: {
+        title: "⌨️ تست سرعت تایپ",
+        subtitle: "سرعت و دقت تایپ خود را در زمان واقعی بسنجید",
+        seconds: "ثانیه",
+        wpm: "WPM",
+        accuracy: "دقت",
+        placeholder: "اینجا کلیک کنید و شروع به تایپ کنید...",
+        startMsg: "روی فیلد ورودی کلیک کنید و برای شروع شروع به تایپ کنید",
+        resultsTitle: "📊 نتایج تست",
+        wpmLabel: "کلمه در دقیقه",
+        accuracyLabel: "دقت",
+        charsLabel: "کاراکتر صحیح",
+        mistakesTitle: "❌ خطاهای شما",
+        suggestionsTitle: "💡 نکات تمرین",
+        restartBtn: "🔄 دوباره تلاش کنید",
+        noMistakes: "🎉 عالی! بدون خطا!",
+        topMistakes: "بیشترین خطا در این کاراکترها:",
+        practice: "💪 نکته: این کاراکترها را با دقت بیشتر تمرین کنید.",
+        perfect: "👏 تمام کاراکترها درست تایپ شدند!",
+        ratingLabel: "امتیاز عملکرد"
+      }
+    };
+
+    const ratingMessages = {
+      en: [
+        "Needs Practice - Don't give up!",
+        "Fair - Keep improving!",
+        "Good! Keep practicing!",
+        "Very Good! Great typing skills!",
+        "Excellent! Outstanding performance!"
+      ],
+      fa: [
+        "نیازمند تمرین - تلاش رو ترک نکنید!",
+        "متوسط - بهتر شوید!",
+        "خوب! ادامه تمرین دهید!",
+        "خیلی خوب! مهارت تایپ عالی!",
+        "عالی! عملکرد فوق‌العاده!"
+      ]
+    };
+
+    let language = "en";
+    let theme = "dark";
+    let currentParagraph = "";
+    let typedChars = [];
+    let mistakes = [];
+    let mistakeChars = {};
+    let timerInterval = null;
+    let timeLeft = 120;
+    let hasStarted = false;
+    let totalTyped = 0;
+    let correctTyped = 0;
+    let startTime = null;
+
+    function getTranslation(key) {
+      return translations[language][key] || translations.en[key];
+    }
+
+    function toggleTheme() {
+      theme = theme === "dark" ? "light" : "dark";
+      document.body.classList.remove("dark-mode", "light-mode");
+      document.body.classList.add(theme + "-mode");
+      
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+      localStorage.setItem("theme", theme);
+    }
+
+    function setLanguage(lang) {
+      language = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+      
+      const enBtn = document.getElementById('lang-en');
+      const faBtn = document.getElementById('lang-fa');
+      
+      if (lang === 'en') {
+        enBtn.style.backgroundColor = '#4f46e5';
+        enBtn.style.boxShadow = '0 0 20px rgba(99, 102, 241, 0.6)';
+        faBtn.style.backgroundColor = '#475569';
+        faBtn.style.boxShadow = 'none';
+      } else {
+        faBtn.style.backgroundColor = '#4f46e5';
+        faBtn.style.boxShadow = '0 0 20px rgba(99, 102, 241, 0.6)';
+        enBtn.style.backgroundColor = '#475569';
+        enBtn.style.boxShadow = 'none';
+      }
+      
+      document.getElementById('main-title').textContent = getTranslation('title');
+      document.getElementById('subtitle').textContent = getTranslation('subtitle');
+      document.getElementById('timer-label').textContent = getTranslation('seconds');
+      document.getElementById('wpm-label').textContent = getTranslation('wpm');
+      document.getElementById('accuracy-label').textContent = getTranslation('accuracy');
+      document.getElementById('typing-input').placeholder = getTranslation('placeholder');
+      document.getElementById('start-msg').textContent = getTranslation('startMsg');
+      document.getElementById('results-title').textContent = getTranslation('resultsTitle');
+      document.getElementById('final-wpm-label').textContent = getTranslation('wpmLabel');
+      document.getElementById('final-accuracy-label').textContent = getTranslation('accuracyLabel');
+      document.getElementById('final-chars-label').textContent = getTranslation('charsLabel');
+      document.getElementById('mistakes-title').textContent = getTranslation('mistakesTitle');
+      document.getElementById('suggestions-title').textContent = getTranslation('suggestionsTitle');
+      document.getElementById('restart-btn').textContent = getTranslation('restartBtn');
+      document.getElementById('rating-label').textContent = getTranslation('ratingLabel');
+      
+      initTest();
+    }
+
+    function initTest() {
+      const paragraphs = language === 'en' ? paragraphsEN : paragraphsFA;
+      currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+      typedChars = [];
+      mistakes = [];
+      mistakeChars = {};
+      timeLeft = 120;
+      hasStarted = false;
+      totalTyped = 0;
+      correctTyped = 0;
+      startTime = null;
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      renderParagraph();
+      document.getElementById('timer').textContent = timeLeft;
+      document.getElementById('timer').style.color = '#818cf8';
+      document.getElementById('wpm-live').textContent = '0';
+      document.getElementById('accuracy-live').textContent = '100%';
+      document.getElementById('typing-input').value = '';
+      document.getElementById('typing-input').disabled = false;
+      document.getElementById('results-panel').style.display = 'none';
+      document.getElementById('start-message').style.display = 'block';
+      document.getElementById('test-container').style.display = 'block';
+    }
+
+    function renderParagraph() {
+      const display = document.getElementById('paragraph-display');
+      const chars = [];
+      const visibleEnd = Math.min(typedChars.length + 60, currentParagraph.length);
+      
+      for (let i = 0; i < visibleEnd; i++) {
+        const char = currentParagraph[i];
+        let classes = 'char';
+        
+        if (i < typedChars.length) {
+          classes += typedChars[i] === char ? ' correct' : ' incorrect';
+        } else if (i === typedChars.length) {
+          classes += ' current';
+        } else {
+          classes += ' upcoming';
+        }
+        
+        chars.push(`<span class="${classes}">${char}</span>`);
+      }
+      
+      display.innerHTML = chars.join('');
+    }
+
+    function startTimer() {
+      if (hasStarted) return;
+      hasStarted = true;
+      startTime = Date.now();
+      document.getElementById('start-message').style.display = 'none';
+      document.getElementById('timer').style.animation = 'pulse 1s infinite';
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft;
+
+        if (timeLeft <= 10) {
+          document.getElementById('timer').style.color = '#ef4444';
+        }
+
+        updateLiveStats();
+
+        if (timeLeft <= 0) {
+          endTest();
+        }
+      }, 1000);
+    }
+
+    function updateLiveStats() {
+      if (!startTime) return;
+      const elapsedMinutes = (Date.now() - startTime) / 60000;
+      const wpm = elapsedMinutes > 0 ? Math.round((correctTyped / 5) / elapsedMinutes) : 0;
+      const accuracy = totalTyped > 0 ? Math.round((correctTyped / totalTyped) * 100) : 100;
+
+      document.getElementById('wpm-live').textContent = wpm;
+      document.getElementById('accuracy-live').textContent = accuracy + '%';
+    }
+
+    function handleInput(e) {
+      const inputValue = e.target.value;
+      
+      if (!hasStarted && inputValue.length > 0) {
+        startTimer();
+      }
+
+      typedChars = inputValue.split('');
+      totalTyped = typedChars.length;
+      correctTyped = 0;
+      mistakes = [];
+
+      typedChars.forEach((char, i) => {
+        if (i < currentParagraph.length) {
+          if (char === currentParagraph[i]) {
+            correctTyped++;
+          } else {
+            mistakes.push({
+              position: i,
+              expected: currentParagraph[i],
+              typed: char
+            });
+            const expectedChar = currentParagraph[i];
+            mistakeChars[expectedChar] = (mistakeChars[expectedChar] || 0) + 1;
+          }
+        }
+      });
+
+      renderParagraph();
+      updateLiveStats();
+
+      if (typedChars.length >= currentParagraph.length) {
+        endTest();
+      }
+    }
+
+    function calculateRating(wpm, accuracy) {
+      const score = (wpm / 100) * 0.6 + (accuracy / 100) * 0.4;
+      
+      if (score >= 0.9) return 4;
+      if (score >= 0.7) return 3;
+      if (score >= 0.5) return 2;
+      if (score >= 0.3) return 1;
+      return 0;
+    }
+
+    function endTest() {
+      clearInterval(timerInterval);
+      document.getElementById('typing-input').disabled = true;
+      document.getElementById('timer').style.animation = 'none';
+
+      const elapsedMinutes = (Date.now() - startTime) / 60000;
+      const finalWpm = elapsedMinutes > 0 ? Math.round((correctTyped / 5) / elapsedMinutes) : 0;
+      const finalAccuracy = totalTyped > 0 ? Math.round((correctTyped / totalTyped) * 100) : 0;
+
+      document.getElementById('final-wpm').textContent = finalWpm;
+      document.getElementById('final-accuracy').textContent = finalAccuracy + '%';
+      document.getElementById('final-chars').textContent = correctTyped;
+
+      const ratingIndex = calculateRating(finalWpm, finalAccuracy);
+      const ratingStars = document.getElementById('rating-stars');
+      ratingStars.innerHTML = '';
+      
+      for (let i = 0; i < 5; i++) {
+        const star = document.createElement('span');
+        star.textContent = i <= ratingIndex ? '⭐' : '☆';
+        star.className = 'rating-star';
+        star.style.animationDelay = (i * 0.1) + 's';
+        ratingStars.appendChild(star);
+      }
+
+      document.getElementById('rating-message').textContent = ratingMessages[language][ratingIndex];
+      
+      const descriptions = {
+        en: [
+          "You're just getting started. Keep practicing!",
+          "Not bad! Try to improve your accuracy.",
+          "Good performance! You're on the right track.",
+          "Impressive! Your skills are well developed.",
+          "Phenomenal! You're a typing master!"
+        ],
+        fa: [
+          "شروع خوبی! همچنان تمرین کنید!",
+          "بد نیست! دقت خود را بهتر کنید.",
+          "عملکرد خوب! شما در مسیر درست هستید.",
+          "فوق‌العاده! مهارات شما خوب است.",
+          "بی‌نظیر! شما یک استاد تایپ هستید!"
+        ]
+      };
+      
+      document.getElementById('rating-description').textContent = descriptions[language][ratingIndex];
+
+      const mistakesList = document.getElementById('mistakes-list');
+      if (mistakes.length > 0) {
+        mistakesList.innerHTML = mistakes.slice(0, 20).map(m => 
+          `<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(71, 85, 105, 0.3); gap: 8px;">
+            <span style="color: #94a3b8;">Pos ${m.position + 1}:</span>
+            <span style="flex: 1;">Expected: <span style="color: #10b981; font-weight: bold;">"${m.expected === ' ' ? '␣' : m.expected}"</span></span>
+            <span style="flex: 1;">Typed: <span style="color: #ef4444; font-weight: bold;">"${m.typed === ' ' ? '␣' : m.typed}"</span></span>
+          </div>`
+        ).join('');
+        if (mistakes.length > 20) {
+          mistakesList.innerHTML += `<div style="color: #64748b; text-align: center; margin-top: 12px; font-size: 12px;">+${mistakes.length - 20} ${language === 'en' ? 'more mistakes' : 'خطای دیگر'}...</div>`;
+        }
+      } else {
+        mistakesList.innerHTML = `<div style="color: #10b981; text-align: center; font-weight: bold;">${getTranslation('noMistakes')}</div>`;
+      }
+
+      const suggestionsList = document.getElementById('suggestions-list');
+      const sortedMistakes = Object.entries(mistakeChars).sort((a, b) => b[1] - a[1]);
+      
+      if (sortedMistakes.length > 0) {
+        const topMistakes = sortedMistakes.slice(0, 5);
+        suggestionsList.innerHTML = `
+          <p style="color: #e2e8f0; margin-bottom: 12px; font-size: 13px;">${getTranslation('topMistakes')}</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+            ${topMistakes.map(([char, count]) => 
+              `<span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 12px;">
+                "${char === ' ' ? '␣' : char}" <span style="color: #ef4444;">×${count}</span>
+              </span>`
+            ).join('')}
+          </div>
+          <p style="color: #cbd5e1; font-size: 12px;">${getTranslation('practice')}</p>
+        `;
+      } else {
+        suggestionsList.innerHTML = `<p style="color: #10b981; font-size: 13px; font-weight: bold;">${getTranslation('perfect')}</p>`;
+      }
+
+      document.getElementById('results-panel').style.display = 'block';
+      document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('typing-input').addEventListener('input', handleInput);
+    document.getElementById('restart-btn').addEventListener('click', initTest);
+    document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('lang-fa').addEventListener('click', () => setLanguage('fa'));
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    theme = savedTheme;
+    document.body.classList.remove("dark-mode", "light-mode");
+    document.body.classList.add(theme + "-mode");
+    document.getElementById('theme-toggle').textContent = theme === "dark" ? "🌙" : "☀️";
+
+    setLanguage('en');
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ea13a5b920fd2a4',t:'MTc3NTgxODYxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
